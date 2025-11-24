@@ -6,6 +6,7 @@
 -- random input { [100000]i32 [100000]i32 } auto output
 -- random input { [1000000]i32 [1000000]i32 } auto output
 -- random input { [10000000]i32 [10000000]i32 } auto output
+-- random input { [100000000]i32 [100000000]i32 } auto output
 
 -- ==
 -- entry: test_process_idx
@@ -15,6 +16,7 @@
 -- random input { [100000]i32 [100000]i32 } auto output
 -- random input { [1000000]i32 [1000000]i32 } auto output
 -- random input { [10000000]i32 [10000000]i32 } auto output
+-- random input { [100000000]i32 [100000000]i32 } auto output
 
 -- ==
 -- entry: test_process_idx_comm
@@ -24,6 +26,7 @@
 -- random input { [100000]i32 [100000]i32 } auto output
 -- random input { [1000000]i32 [1000000]i32 } auto output
 -- random input { [10000000]i32 [10000000]i32 } auto output
+-- random input { [100000000]i32 [100000000]i32 } auto output
 
 let process (xs: []i32) (ys: []i32) : i32 =
     reduce i32.max 0 (map2 (\x y -> i32.abs(x-y)) xs ys)
