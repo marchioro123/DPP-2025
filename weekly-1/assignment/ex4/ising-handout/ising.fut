@@ -31,9 +31,11 @@ def rand = rand_f32.rand (0f32, 1f32)
 def random_grid (seed: i32) (h: i64) (w: i64)
               : ([h][w]rng_engine.rng, [h][w]spin) =
   let init_rngs = rng_engine.split_rng (h*w) (rng_engine.rng_from_seed [seed])
-  let (flat_rngs, flat_spins) = unzip (map (\r -> let (r', x) = rand_i8.rand (0i8, 1i8) r
-                                                  in (r', x*2-1)) init_rngs)
-  in (unflatten (flat_rngs :> [h*w]rng_engine.rng), unflatten (flat_spins :> [h*w]spin))
+  let (flat_rngs, flat_spins) = 
+    unzip (map (\r -> let (r', x) = rand_i8.rand (0i8, 1i8) r
+                      in (r', x*2-1)) init_rngs)
+  in (unflatten (flat_rngs :> [h*w]rng_engine.rng), 
+      unflatten (flat_spins :> [h*w]spin))
 
 
 -- Compute $\Delta_e$ for each spin in the grid, using wraparound at
@@ -78,6 +80,14 @@ def main (abs_temp: f32) (samplerate: f32)
 -- ==
 -- entry: main
 -- input { 0.5f32 0.1f32 10i64 10i64 2 } auto output
+-- input { 0.5f32 0.1f32 100i64 100i64 2 } auto output
+-- input { 0.5f32 0.1f32 1000i64 1000i64 2 } auto output
+-- input { 0.5f32 0.1f32 10000i64 10000i64 2 } auto output
+-- input { 0.5f32 0.1f32 10i64 10i64 1 } auto output
+-- input { 0.5f32 0.1f32 10i64 10i64 10 } auto output
+-- input { 0.5f32 0.1f32 10i64 10i64 100 } auto output
+-- input { 0.5f32 0.1f32 10i64 10i64 1000 } auto output
+
 
 -- The following definitions are for the visualisation and need not be modified.
 

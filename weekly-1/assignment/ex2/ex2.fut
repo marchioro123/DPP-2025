@@ -42,25 +42,31 @@ def hillis_steele [n] (xs: [n]i32) : [n]i32 =
 def work_efficient [n] (xs: [n]i32) : [n]i32 =
     let m = ilog2 n
     let upswept =
-        loop xs = copy xs for d in 0...m-1 do
-            let offset = 1 << d
-            let step = offset << 1
-            in map (\i -> if (i+1) % step == 0 
-                        then xs[i] + xs[i - offset]
-                        else xs[i]) (iota n)
+        loop xs = copy xs for d in m-1..m-2...0 do
+            let n' = 1 << d
+            let step  = 1 << (m - d)
+            let offset = step >> 1
+            let idxs = map (\i -> (i+1)*step - 1) (iota n')
+            let vals = map (\idx -> xs[idx - offset] + xs[idx]) idxs
+            in scatter xs idxs vals
 
     let upswept[n -1] = 0
 
     let downswept =
-        loop xs = upswept for d in m-1..m-2...0 do
-            let offset = 1 << d
-            let step = offset << 1
-            in map (\i -> if (i+1) % step == 0
-                        then xs[i] + xs[i - offset]
-                        else if (i+1) % offset == 0
-                        then xs[i + offset]
-                        else xs[i]) (iota n)
+        loop xs = upswept for d in 0...m-1 do
+            let n' = 1 << d
+            let step  = 1 << (m - d)
+            let offset = step >> 1
+            let idxs1 = map (\i -> (i+1)*step - 1) (iota n')
+            let idxs2 = map (\i -> i*step + offset - 1) (iota n')
+            let vals1 = map (\idx -> xs[idx - offset] + xs[idx]) idxs1
+            let vals2 = map (\idx -> xs[idx + offset]) idxs2
 
+            let all_idxs = concat idxs1 idxs2
+            let all_vals = concat vals1 vals2
+
+            in scatter xs all_idxs all_vals
+            
     in downswept
 
 entry built_in_scan [n] (xs: [n]i32) : [n]i32 =
