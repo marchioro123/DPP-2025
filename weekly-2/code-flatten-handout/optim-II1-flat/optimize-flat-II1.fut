@@ -76,7 +76,6 @@ def optimII1Ker [m][n][q] (Sa: [m]u32, Da: [n]f32)
                           (Sb: [m]u32, Db: [q]f32)
                           (cs: [m]f32) (inds: [m]i64)
                         : [m]f32 =
-  -- #[unsafe]
   let (Ba, flags') = (mkFlagArray Sa 0 (iota m) :> ([m]u32, [n]i64))
   let (Bb, _) = (mkFlagArray Sb 0 (iota m) :> ([m]u32, [n]i64))
 
@@ -84,24 +83,24 @@ def optimII1Ker [m][n][q] (Sa: [m]u32, Da: [n]f32)
   let II1 = sgmScan (+) 0 flags flags'
 
   let As' = map f32.sqrt Da
-
+  
   let bofinds = map2 (\off ind -> Db[i64.u32 off+ind]) Bb inds
   let Bs' = map (\i -> bofinds[i]) II1
 
   let Cs' = map (\i -> cs[i]) II1
 
-  let iotis = sgmScan (+) 0 flags (replicate n 1) |> map (\x -> x-1)
+  let iotis = map2 (\i sgm -> f32.i64 i - f32.u32 Ba[sgm]) (iota n) II1 -- sgmScan (+) 0 flags (replicate n 1) |> map (\x -> x-1)
 
-  let res = map4 (\a b c i -> a * b + c + i) As' Bs' Cs' iotis
+  let tmp = map4 (\a b c i -> a * b + c + i) As' Bs' Cs' iotis
 
-  let scanRes = sgmScan f32.max f32.lowest flags res
+  let scanTmp = sgmScan f32.max f32.lowest flags tmp
 
   let last_idxs = map2 (\x y -> if x == y then -1 else x) II1 (rotate 1 II1)
 
-  in scatter (replicate m f32.lowest) last_idxs scanRes
+  in scatter (replicate m f32.lowest) last_idxs scanTmp
 
 -- optimII1Ker ([3,2,2], [1,2,4,3,2,1,1]) ([3,2,2], [1,0,2,3,3,1,0]) [2,3,2] [0,1,1]
--- classicKer ([0,3,0,2,2], [1,2,4,3,2,1,1]) ([0,3,0,2,2], [1,0,2,3,3,1,0]) [0,2,0,3,2] [0,0,0,1,1]
+-- optimII1Ker ([0,3,0,2,2], [1,2,4,3,2,1,1]) ([0,3,0,2,2], [1,0,2,3,3,1,0]) [0,2,0,3,2] [0,0,0,1,1]
 
 -----------------------------------------
 --- dataset generation & entry points ---
@@ -127,6 +126,31 @@ entry mkData (m: i64) (q:i64) (p:i64) =
 -- "(m,q,p)=(100000, 1000,    10)" script input { mkData 100000i64 1000i64     10i64 }
 -- output @ data/res100000x1000x10.out
 
+
+-- Test case 1
+-- ==
+-- input {
+--   [3u32,2u32,2u32]
+--   [1f32,2f32,4f32,3f32,2f32,1f32,1f32]
+--   [3u32,2u32,2u32]
+--   [1f32,0f32,2f32,3f32,3f32,1f32,0f32]
+--   [2f32,3f32,2f32]
+--   [0i64,1i64,1i64]
+-- }
+-- output { [6.0f32, 8.2426405f32, 3.0f32] }
+
+-- Test case 2: Empty segments
+-- ==
+-- input {
+--   [0u32,3u32,0u32,2u32,2u32]
+--   [1f32,2f32,4f32,3f32,2f32,1f32,1f32]
+--   [0u32,3u32,0u32,2u32,2u32]
+--   [1f32,0f32,2f32,3f32,3f32,1f32,0f32]
+--   [0f32,2f32,0f32,3f32,2f32]
+--   [0i64,0i64,0i64,1i64,1i64]
+-- }
+-- output { [-f32.inf, 6.0f32, -f32.inf, 8.2426405f32, 3.0f32] }
+
 entry classic [m][n][q]  (Sa: [m]u32) (Da: [n]f32)
                          (Sb: [m]u32) (Db: [q]f32)
                          (cs: [m]f32) (inds: [m]i64)
@@ -139,3 +163,8 @@ entry optimII1 [m][n][q] (Sa: [m]u32) (Da: [n]f32)
                        : [m]f32 =
   optimII1Ker (Sa, Da) (Sb, Db) cs inds
 
+let main [m][n][q] (Sa: [m]u32) (Da: [n]f32)
+                         (Sb: [m]u32) (Db: [q]f32)
+                         (cs: [m]f32) (inds: [m]i64)
+                       : [m]f32 =
+  optimII1Ker (Sa, Da) (Sb, Db) cs inds

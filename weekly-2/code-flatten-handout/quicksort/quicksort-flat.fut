@@ -12,6 +12,15 @@
 -- compiled input { [29.0f32, 5.0f32, 7.0f32, 11.0f32, 2.0f32, 3.0f32, 13.0f32, 23.0f32, 17.0f32, 19.0f32] }
 -- output { [2.0f32, 3.0f32, 5.0f32, 7.0f32, 11.0f32, 13.0f32, 17.0f32, 19.0f32, 23.0f32, 29.0f32] }
 
+-- ==
+-- entry: main
+-- random input { [10000]f32 }
+-- random input { [100000]f32 }
+-- random input { [1000000]f32 }
+-- random input { [10000000]f32 }
+-- random input { [50000000]f32 }
+-- random input { [100000000]f32 }
+
 ---------------------
 --- SgmSumInt     ---
 ---------------------
@@ -63,6 +72,8 @@ let partition2 [n] 't (conds: [n]bool) (dummy: t) (arr: [n]t) : (i32, [n]t) =
   let fltarr= scatter (replicate n dummy) (map i64.i32 inds) arr
   in  (lst, fltarr)
 
+-- partition2 [true, false, true] 0 [1,2,3]
+
 -----------------------------------------
 --- Weekly 2, TASK 4                  ---
 --- The Lifted Version of Partition2  ---
@@ -92,16 +103,37 @@ let partition2 [n] 't (conds: [n]bool) (dummy: t) (arr: [n]t) : (i32, [n]t) =
 -- Please note that `partition2` ends with a call to `scatter`, hence you will
 --   probably need to apply the flattening rule you wrote to solve TASK3.
 --
+
 let partition2L 't [n] [m]
                 -- the shape of condsL is also shp
                 (condsL: [n]bool) (dummy: t)
                 (shp: [m]i32, arr: [n]t) :
                 ([m]i32, ([m]i32, [n]t)) =
-  let begs   = scan (+) 0 shp
-  let flags  = mkFlagArray shp 0i32 (map (+1) (map i32.i64 (iota m)))
-  let outinds= sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
+  let lastIdxs = scan (+) 0 shp
+  let firstIdxs = [0] ++ lastIdxs[:m-1]
+  let flags = (mkFlagArray shp 0i32 (map (+1) (map i32.i64 (iota m))) :> [n]i32)
+  let outinds = sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
 
-  in  (shp, (shp,arr))
+  let sgmOffsets = map (\i -> firstIdxs[i]) outinds
+  
+  let tflgs = map i32.bool condsL
+  let fflgs = map (\b -> 1 - b) tflgs
+
+  let tmp1 = sgmSumInt flags tflgs
+  let indsT = map2 (+) tmp1 sgmOffsets
+
+  let tmp2 = sgmSumInt flags fflgs
+  let sgmFalseOffsets = map (\i -> indsT[lastIdxs[i]-1]) outinds
+  let indsF = map2 (+) tmp2 sgmFalseOffsets
+
+  let inds  = map3 (\ c indT indF -> if c then indT-1 else indF-1) condsL indsT indsF
+
+  let fltarr = scatter (replicate n dummy) (map i64.i32 inds) arr
+
+  in  (map (\i -> tmp1[i-1]) lastIdxs, (shp, fltarr))
+
+-- partition2L [true, false, true] 0 ([1,2], [1,2,3])
+-- partition2L [true, false, false, true, false, true] 0 ([2,0,1,3], [1,2,3,4,5,6])
 
 -----------------------
 --- Flat Quicksort
