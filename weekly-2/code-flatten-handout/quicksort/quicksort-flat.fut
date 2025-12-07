@@ -18,7 +18,6 @@
 -- random input { [100000]f32 }
 -- random input { [1000000]f32 }
 -- random input { [10000000]f32 }
--- random input { [50000000]f32 }
 -- random input { [100000000]f32 }
 
 ---------------------

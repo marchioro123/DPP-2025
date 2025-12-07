@@ -12,24 +12,26 @@ def segreduce [n] 't (op: t -> t -> t) (ne: t)
     in map (.0) (filter (\(_, f) -> f) (zip scanRes last_elm_flags)) 
      
 
-def segreduce_index [n] 't (op: t -> t -> t) (ne: t)
+def segreduce_index [m] [n] 't (op: t -> t -> t) (ne: t)
                            (arr: [n](t, i64)): []t =
     let (vals, idxs) = unzip arr
     let flags = map (\x -> x != -1) (rotate (-1) idxs)
     let scan_input = zip vals flags
     let scanRes = segscan op ne scan_input
-    in scatter (replicate (idxs[n-1]+1) ne) idxs scanRes
+    in scatter (replicate m ne) idxs scanRes
 
-def reduce_by_index_ 'a [n]
+def reduce_by_index_ 'a [m] [n]
+                    (dest: *[m]a)
                     (f: a -> a -> a) (ne: a)
-                    (is: [n]i64) (as: [n]a): []a =
+                    (is: [n]i64) (as: [n]a): [m]a =
     let sort_arr = 
         radix_sort_int_by_key (\p -> p.1) i64.num_bits i64.get_bit (zip as is)
     let sort_arr_updated = 
             map (\i -> if i == n-1 || sort_arr[i].1 != sort_arr[i+1].1
                        then sort_arr[i]
                        else (sort_arr[i].0, -1)) (iota n)
-    in segreduce_index f ne sort_arr_updated
+    let tmp = segreduce_index f ne sort_arr_updated
+    in map2 f tmp dest
 
 entry test_scan (xs: []i32) : []i32 =
   scan (+) 0 xs
@@ -44,7 +46,8 @@ entry test_segreduce (xs: []i32) (flags: []bool) : []i32 =
   segreduce (+) 0 (zip xs flags)
 
 entry test_reduce_by_index [n] (xs: [n]i32) (idxs: [n]i8) : []i32 =
-  reduce_by_index_ (+) 0 (map i64.i8 idxs) xs
+  let dest = replicate n 0
+  in reduce_by_index_ dest (+) 0 (map i64.i8 idxs) xs
 
 entry test_reduce_by_index_builtin [n] (xs: [n]i32) (idxs: [n]i8) : [n]i32 =
   let dest = replicate n 0
@@ -92,14 +95,15 @@ entry test_reduce_by_index_builtin [n] (xs: [n]i32) (idxs: [n]i8) : [n]i32 =
 
 -- ==
 -- entry: test_reduce_by_index
--- random input { [100]i32 [100]i8 }
--- random input { [1000]i32 [1000]i8 }
--- random input { [10000]i32 [10000]i8 }
--- random input { [100000]i32 [100000]i8 }
--- random input { [1000000]i32 [1000000]i8 }
--- random input { [10000000]i32 [10000000]i8 }
+-- random input { [100]i32:0..100 [100]i8 }
+-- random input { [1000]i32:0..100 [1000]i8 }
+-- random input { [10000]i32:0..100 [10000]i8 }
+-- random input { [100000]i32:0..100 [100000]i8 }
+-- random input { [1000000]i32:0..100 [1000000]i8 }
+-- random input { [10000000]i32:0..100 [10000000]i8 }
 
 -- ==
+
 -- entry: test_reduce_by_index_builtin
 -- random input { [100]i32 [100]i8 }
 -- random input { [1000]i32 [1000]i8 }
