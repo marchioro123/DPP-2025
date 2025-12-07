@@ -131,6 +131,15 @@ entry test_reduce_by_index_builtin [n] (xs: [n]i32) (idxs: [n]i8) : [n]i32 =
 -- random input { [1000000]i32 [1000000]i8 }
 -- random input { [10000000]i32 [10000000]i8 }
 
+-- ==
+-- entry: test
+-- compiled random nobench input { [100]i32 [100]i64 [100]i32 }
+-- output { true }
+entry test [m] [n] (dest: [m]i32) (is: [n]i64) (as: [n]i32) =
+  let js = map (% (2 * m)) is
+  in zip (reduce_by_index_ (copy dest) (+) 0i32 js as) (reduce_by_index (copy dest) (+) 0i32 js as)
+     |> all (uncurry (==))
+
 -----------------------------------------------------
 -- This only works with all non-empty indexes
 -----------------------------------------------------
