@@ -31,7 +31,7 @@ def reduce_by_index_ 'a [m] [n]
                        then sort_arr[i]
                        else (sort_arr[i].0, -1)) (iota n)
     let tmp = segreduce_index f ne sort_arr_updated
-    in map2 f tmp dest
+    in map2 f dest tmp
 
 entry test_scan (xs: []i32) : []i32 =
   scan (+) 0 xs
@@ -76,6 +76,12 @@ entry test_reduce_by_index_builtin [n] (xs: [n]i32) (idxs: [n]i8) : [n]i32 =
 -- ==
 
 -- entry: test_segscan
+-- nobench input { [2i32,2i32,2i32]
+--                 [false, true, false] }
+-- output { [2i32,2i32,4i32] }
+-- nobench input { [1i32,2i32,3i32,4i32,5i32]
+--                 [true, false, true, false, false] }
+-- output { [1i32,3i32,3i32,7i32,12i32] }
 -- random input { [100]i32 [100]bool }
 -- random input { [1000]i32 [1000]bool }
 -- random input { [10000]i32 [10000]bool }
@@ -86,6 +92,12 @@ entry test_reduce_by_index_builtin [n] (xs: [n]i32) (idxs: [n]i8) : [n]i32 =
 -- ==
 
 -- entry: test_segreduce
+-- nobench input { [2i32,2i32,2i32]
+--                 [false, true, false] }
+-- output { [2i32] }
+-- nobench input { [1i32,2i32,3i32,4i32,5i32]
+--                 [true, false, true, false, false] }
+-- output { [3i32,12i32] }
 -- random input { [100]i32 [100]bool }
 -- random input { [1000]i32 [1000]bool }
 -- random input { [10000]i32 [10000]bool }
@@ -95,16 +107,23 @@ entry test_reduce_by_index_builtin [n] (xs: [n]i32) (idxs: [n]i8) : [n]i32 =
 
 -- ==
 -- entry: test_reduce_by_index
--- random input { [100]i32:0..100 [100]i8 }
--- random input { [1000]i32:0..100 [1000]i8 }
--- random input { [10000]i32:0..100 [10000]i8 }
--- random input { [100000]i32:0..100 [100000]i8 }
--- random input { [1000000]i32:0..100 [1000000]i8 }
--- random input { [10000000]i32:0..100 [10000000]i8 }
+-- nobench input { [1i32,2i32,3i32,4i32] [0i8,1i8,2i8,3i8] }
+-- output { [1i32,2i32,3i32,4i32] }
+-- nobench input { [1i32,2i32,3i32,4i32] [0i8,1i8,1i8,3i8] }
+-- output { [1i32,5i32,0i32,4i32] }
+-- random input { [100]i32 [100]i8 }
+-- random input { [1000]i32 [1000]i8 }
+-- random input { [10000]i32 [10000]i8 }
+-- random input { [100000]i32 [100000]i8 }
+-- random input { [1000000]i32 [1000000]i8 }
+-- random input { [10000000]i32 [10000000]i8 }
 
 -- ==
-
 -- entry: test_reduce_by_index_builtin
+-- nobench input { [1i32,2i32,3i32,4i32] [0i8,1i8,2i8,3i8] }
+-- output { [1i32,2i32,3i32,4i32] }
+-- nobench input { [1i32,2i32,3i32,4i32] [0i8,1i8,1i8,3i8] }
+-- output { [1i32,5i32,0i32,4i32] }
 -- random input { [100]i32 [100]i8 }
 -- random input { [1000]i32 [1000]i8 }
 -- random input { [10000]i32 [10000]i8 }

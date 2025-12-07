@@ -26,33 +26,45 @@ entry test_process_idx_comm (xs: []i32) (ys: []i32) : (i64, i32) =
 
 -- ==
 -- entry: test_process
--- random input { [100]i32 [100]i32 }
--- random input { [1000]i32 [1000]i32 }
--- random input { [10000]i32 [10000]i32 }
--- random input { [100000]i32 [100000]i32 }
--- random input { [1000000]i32 [1000000]i32 }
--- random input { [10000000]i32 [10000000]i32 }
--- random input { [100000000]i32 [100000000]i32 }
+-- nobench input { [1i32, 4i32, 7i32] [2i32, 10i32, 5i32] }
+-- output { 6i32 }
+-- nobench input { [-5i32, 0i32, 5i32] [0i32, 0i32, 0i32] }
+-- output { 5i32 }
+-- notest random input { [100]i32 [100]i32 }
+-- notest random input { [1000]i32 [1000]i32 }
+-- notest random input { [10000]i32 [10000]i32 }
+-- notest random input { [100000]i32 [100000]i32 }
+-- notest random input { [1000000]i32 [1000000]i32 }
+-- notest random input { [10000000]i32 [10000000]i32 }
+-- notest random input { [100000000]i32 [100000000]i32 }
 
 -- ==
 -- entry: test_process_idx
--- random input { [100]i32 [100]i32 }
--- random input { [1000]i32 [1000]i32 }
--- random input { [10000]i32 [10000]i32 }
--- random input { [100000]i32 [100000]i32 }
--- random input { [1000000]i32 [1000000]i32 }
--- random input { [10000000]i32 [10000000]i32 }
--- random input { [100000000]i32 [100000000]i32 }
+-- nobench input { [1i32, 4i32, 7i32] [2i32, 10i32, 5i32] }
+-- output { 1i64 6i32 }
+-- nobench input { [-5i32, 0i32, 5i32] [0i32, 0i32, 1i32] }
+-- output { 0i64 5i32 }
+-- notest random input { [100]i32 [100]i32 }
+-- notest random input { [1000]i32 [1000]i32 }
+-- notest random input { [10000]i32 [10000]i32 }
+-- notest random input { [100000]i32 [100000]i32 }
+-- notest random input { [1000000]i32 [1000000]i32 }
+-- notest random input { [10000000]i32 [10000000]i32 }
+-- notest random input { [100000000]i32 [100000000]i32 }
 
 -- ==
 -- entry: test_process_idx_comm
--- random input { [100]i32 [100]i32 }
--- random input { [1000]i32 [1000]i32 }
--- random input { [10000]i32 [10000]i32 }
--- random input { [100000]i32 [100000]i32 }
--- random input { [1000000]i32 [1000000]i32 }
--- random input { [10000000]i32 [10000000]i32 }
--- random input { [100000000]i32 [100000000]i32 }
+-- nobench input { [1i32, 4i32, 7i32] [2i32, 10i32, 5i32] }
+-- output { 1i64 6i32 }
+-- nobench input { [-5i32, 0i32, 5i32] [0i32, 0i32, 1i32] }
+-- output { 0i64 5i32 }
+-- notest random input { [100]i32 [100]i32 }
+-- notest random input { [1000]i32 [1000]i32 }
+-- notest random input { [10000]i32 [10000]i32 }
+-- notest random input { [100000]i32 [100000]i32 }
+-- notest random input { [1000000]i32 [1000000]i32 }
+-- notest random input { [10000000]i32 [10000000]i32 }
+-- notest random input { [100000000]i32 [100000000]i32 }
 
 
 

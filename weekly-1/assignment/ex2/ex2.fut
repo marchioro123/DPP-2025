@@ -1,32 +1,44 @@
 -- ==
 -- entry: built_in_scan
--- random input { [128]i32 }
--- random input { [1024]i32 }
--- random input { [16384]i32 }
--- random input { [131072]i32 }
--- random input { [1048576]i32 }
--- random input { [8388608]i32 }
--- random input { [67108864]i32 }
+-- nobench input { [1i32, 2i32, 3i32, 4i32] }
+-- output { [1i32, 3i32, 6i32, 10i32] }
+-- nobench input { [5i32, -2i32, 7i32, 4i32] }
+-- output { [5i32, 3i32, 10i32, 14i32] }
+-- notest random input { [128]i32 }
+-- notest random input { [1024]i32 }
+-- notest random input { [16384]i32 }
+-- notest random input { [131072]i32 }
+-- notest random input { [1048576]i32 }
+-- notest random input { [8388608]i32 }
+-- notest random input { [67108864]i32 }
 
 -- ==
 -- entry: test_hillis_steele
--- random input { [128]i32 }
--- random input { [1024]i32 }
--- random input { [16384]i32 }
--- random input { [131072]i32 }
--- random input { [1048576]i32 }
--- random input { [8388608]i32 }
--- random input { [67108864]i32 }
+-- nobench input { [1i32, 2i32, 3i32, 4i32] }
+-- output { [1i32, 3i32, 6i32, 10i32] }
+-- nobench input { [5i32, -2i32, 7i32, 4i32] }
+-- output { [5i32, 3i32, 10i32, 14i32] }
+-- notest random input { [128]i32 }
+-- notest random input { [1024]i32 }
+-- notest random input { [16384]i32 }
+-- notest random input { [131072]i32 }
+-- notest random input { [1048576]i32 }
+-- notest random input { [8388608]i32 }
+-- notest random input { [67108864]i32 }
 
 -- ==
 -- entry: test_work_efficient
--- random input { [128]i32 }
--- random input { [1024]i32 }
--- random input { [16384]i32 }
--- random input { [131072]i32 }
--- random input { [1048576]i32 }
--- random input { [8388608]i32 }
--- random input { [67108864]i32 }
+-- nobench input { [1i32, 2i32, 3i32, 4i32] }
+-- output { [0i32, 1i32, 3i32, 6i32] }
+-- nobench input { [5i32, -2i32, 7i32, 4i32] }
+-- output { [0i32, 5i32, 3i32, 10i32] }
+-- notest random input { [128]i32 }
+-- notest random input { [1024]i32 }
+-- notest random input { [16384]i32 }
+-- notest random input { [131072]i32 }
+-- notest random input { [1048576]i32 }
+-- notest random input { [8388608]i32 }
+-- notest random input { [67108864]i32 }
 
 def ilog2 (x: i64) = 63 - i64.i32 (i64.clz x)
 
