@@ -140,3 +140,7 @@ def find_previous [n] 't
      then iterate_while (< offset) descent (sibling index) - offset
      else -1
 ```
+P.S. I realized later that being able to solve for the next smaller or
+equal element can be used for solving subtree_sizes work efficiently
+and also do parallel bracket matching. Found also another version with
+a better complexity [here](https://doi.org/10.1006/jagm.1997.0905).
