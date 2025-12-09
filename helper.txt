@@ -1,0 +1,1 @@
+rm -fr data ex2 *.pdf *.bin *.c *.pyc *.json *.actual *.expected

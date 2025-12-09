@@ -20,6 +20,22 @@
 -- random input { [10000000]f32 }
 -- random input { [100000000]f32 }
 
+-- ==
+-- entry: test
+-- nobench compiled random input { [10000]bool [100]i64 [10000]i32}
+-- output { true }
+entry test [n][m] (condsL: [n]bool) (shp: [m]i64) (arr: [n]i32) = 
+  let shp = map (% 10) shp
+  let shp[length shp - 1] = length arr - i64.sum (init shp)
+  let (seps, (_, result)) = partition2L condsL 0 (map i32.i64 shp, arr)
+  let ends = scan (+) 0 shp
+  let starts = rotate (-1) ends with [0] = 0
+  in loop acc = true for (res_sep, i, j) in zip3 seps starts ends do 
+      let (exp_sep, expected) = partition2 condsL[i:j] 0i32 arr[i:j]
+      in acc
+        && all (uncurry (==)) (zip expected result[i:j])
+        && exp_sep == res_sep
+        
 ---------------------
 --- SgmSumInt     ---
 ---------------------
