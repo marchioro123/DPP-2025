@@ -9,32 +9,17 @@
 -- 3. quicksort:  is the flat-parallel version of quicksort algorithm.
 --                quicksort implementation uses `partition2L`.
 -- ==
--- compiled input { [29.0f32, 5.0f32, 7.0f32, 11.0f32, 2.0f32, 3.0f32, 13.0f32, 23.0f32, 17.0f32, 19.0f32] }
+-- nobench compiled input { [29.0f32, 5.0f32, 7.0f32, 11.0f32, 2.0f32, 3.0f32, 13.0f32, 23.0f32, 17.0f32, 19.0f32] }
 -- output { [2.0f32, 3.0f32, 5.0f32, 7.0f32, 11.0f32, 13.0f32, 17.0f32, 19.0f32, 23.0f32, 29.0f32] }
 
 -- ==
 -- entry: main
--- random input { [10000]f32 }
--- random input { [100000]f32 }
--- random input { [1000000]f32 }
--- random input { [10000000]f32 }
--- random input { [100000000]f32 }
+-- notest random input { [10000]f32 }
+-- notest random input { [100000]f32 }
+-- notest random input { [1000000]f32 }
+-- notest random input { [10000000]f32 }
+-- notest random input { [100000000]f32 }
 
--- ==
--- entry: test
--- nobench compiled random input { [10000]bool [100]i64 [10000]i32}
--- output { true }
-entry test [n][m] (condsL: [n]bool) (shp: [m]i64) (arr: [n]i32) = 
-  let shp = map (% 10) shp
-  let shp[length shp - 1] = length arr - i64.sum (init shp)
-  let (seps, (_, result)) = partition2L condsL 0 (map i32.i64 shp, arr)
-  let ends = scan (+) 0 shp
-  let starts = rotate (-1) ends with [0] = 0
-  in loop acc = true for (res_sep, i, j) in zip3 seps starts ends do 
-      let (exp_sep, expected) = partition2 condsL[i:j] 0i32 arr[i:j]
-      in acc
-        && all (uncurry (==)) (zip expected result[i:j])
-        && exp_sep == res_sep
         
 ---------------------
 --- SgmSumInt     ---
@@ -128,27 +113,27 @@ let partition2L 't [n] [m]
   let firstIdxs = [0] ++ lastIdxs[:m-1]
   let flags = (mkFlagArray shp 0i32 (map (+1) (map i32.i64 (iota m))) :> [n]i32)
   let outinds = sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
-
-  let sgmOffsets = map (\i -> firstIdxs[i]) outinds
   
   let tflgs = map i32.bool condsL
   let fflgs = map (\b -> 1 - b) tflgs
 
-  let tmp1 = sgmSumInt flags tflgs
-  let indsT = map2 (+) tmp1 sgmOffsets
+  let indsT = sgmSumInt flags tflgs
+  let tmp = sgmSumInt flags fflgs
+  let lst = map2 (\sz i -> if sz > 0 then indsT[i-1] else -1) shp lastIdxs
+  let indsF = map2 (\tmp i -> tmp + lst[i]) tmp outinds
 
-  let tmp2 = sgmSumInt flags fflgs
-  let sgmFalseOffsets = map (\i -> indsT[lastIdxs[i]-1]) outinds
-  let indsF = map2 (+) tmp2 sgmFalseOffsets
+  let inds = map3 (\ c indT indF -> if c then indT-1 else indF-1) condsL indsT indsF
 
-  let inds  = map3 (\ c indT indF -> if c then indT-1 else indF-1) condsL indsT indsF
+  let sgmOffsets = map (\i -> firstIdxs[i]) outinds
+  let flatIdxs = map2 (+) sgmOffsets inds
+  let fltarr = scatter (replicate n dummy) (map i64.i32 flatIdxs) arr
 
-  let fltarr = scatter (replicate n dummy) (map i64.i32 inds) arr
-
-  in  (map (\i -> tmp1[i-1]) lastIdxs, (shp, fltarr))
+  in  (lst, (shp, fltarr))
 
 -- partition2L [true, false, true] 0 ([1,2], [1,2,3])
 -- partition2L [true, false, false, true, false, true] 0 ([2,0,1,3], [1,2,3,4,5,6])
+-- partition2L [true, true, false, false, true, false, true] 0 ([2,0,2,3], [1,2,3,4,5,6,7])
+
 
 -----------------------
 --- Flat Quicksort
@@ -206,3 +191,19 @@ let main [n] (arr: [n]f32) =
     let (_,res) = quicksortL ([i32.i64 n], arr)   
     in  res
 
+
+-- ==
+-- entry: test
+-- nobench compiled random input { [10000]bool [100]i64 [10000]i32}
+-- output { true }
+entry test [n][m] (condsL: [n]bool) (shp: [m]i64) (arr: [n]i32) = 
+  let shp = map (% 10) shp
+  let shp[length shp - 1] = length arr - i64.sum (init shp)
+  let (seps, (_, result)) = partition2L condsL 0 (map i32.i64 shp, arr)
+  let ends = scan (+) 0 shp
+  let starts = rotate (-1) ends with [0] = 0
+  in loop acc = true for (res_sep, i, j) in zip3 seps starts ends do 
+      let (exp_sep, expected) = partition2 condsL[i:j] 0i32 arr[i:j]
+      in acc
+        && all (uncurry (==)) (zip expected result[i:j])
+        && exp_sep == res_sep
