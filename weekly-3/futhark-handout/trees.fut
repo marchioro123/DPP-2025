@@ -95,8 +95,8 @@ entry test_depths steps =
 -- output { [0i64,1i64,2i64,1i64] }
 -- nobench input { "d0 d2 u d3 u d0 d4 u d0 u u d0 d5" }
 -- output { [0i64,1i64,1i64,1i64,2i64,2i64,1i64,2i64] }
--- nobench input { "d1 d2 d3 d4 d5" }
--- output { [0i64,0i64,1i64,2i64,3i64] }
+-- nobench input { "d1 d2 d3 d4 d5 u u u" }
+-- output { [0i64,1i64,2i64,3i64,4i64] }
 
 
 -- ## Task 2.2

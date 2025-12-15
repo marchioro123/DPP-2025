@@ -1,1 +1,52 @@
 rm -fr data ex2 *.pdf *.bin *.c *.pyc *.json *.actual *.expected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- let partition2L 't [n] [m]
+--                 -- the shape of condsL is also shp
+--                 (condsL: [n]bool) (dummy: t)
+--                 (shp: [m]i32, arr: [n]t) :
+--                 ([m]i32, ([m]i32, [n]t)) =
+--   let lastIdxs = scan (+) 0 shp
+--   let firstIdxs = [0] ++ lastIdxs[:m-1]
+--   let flags = (mkFlagArray shp 0i32 (map (+1) (map i32.i64 (iota m))) :> [n]i32)
+--   let outinds = sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
+
+--   let sgmOffsets = map (\i -> firstIdxs[i]) outinds
+  
+--   let tflgs = map i32.bool condsL
+--   let fflgs = map (\b -> 1 - b) tflgs
+
+--   let tmp1 = sgmSumInt flags tflgs
+--   let indsT = map2 (+) tmp1 sgmOffsets
+
+--   let tmp2 = sgmSumInt flags fflgs
+--   let lsts = map2 (\sz i -> if sz > 0 then tmp1[i-1] else -1) shp lastIdxs
+--   let sgmFalseOffsets = map2 (\off i -> off + lsts[i]) sgmOffsets outinds   -- let sgmFalseOffsets = map (\i -> indsT[lastIdxs[i]-1]) outinds
+--   let indsF = map2 (+) tmp2 sgmFalseOffsets
+
+--   let inds  = map3 (\ c indT indF -> if c then indT-1 else indF-1) condsL indsT indsF
+
+--   let fltarr = scatter (replicate n dummy) (map i64.i32 inds) arr
+
+--   in  (lsts, (shp, fltarr))
