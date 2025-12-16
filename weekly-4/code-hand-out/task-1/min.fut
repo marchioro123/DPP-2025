@@ -45,10 +45,10 @@ def task_mapomin [n] (as : [n]f32) (y_bar : f32) : (f32, [n]f32) =
   let bs = map (\a -> let b = a*a - 0.5f32*a in b) as
 
   let min_lift = 
-    \(v1, i1) (v2, i2) -> 
+    (\(v1, i1) (v2, i2) -> 
       if v1 < v2 then (v1, i1)
       else if v2 < v1 then (v2, i2)
-      else (v1, i64.min i1 i2)
+      else (v1, i64.min i1 i2))
 
   let (y, iy) = reduce_comm min_lift (f32.highest, -1) (zip bs (iota n))
 

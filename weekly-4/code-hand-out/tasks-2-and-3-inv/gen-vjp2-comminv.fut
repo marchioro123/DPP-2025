@@ -41,11 +41,15 @@ def vjp2_red_inv 't 't_lft [n]
                (as : [n]t)
                (rs_bar: t)
              : (t, [n]t) =
-  let as_lft = map cfwd as
-  let rs_lft = reduce op_lft ne as_lft
+  -- Primal trace
+  let rs_lft = reduce op_lft ne (map cfwd as)
 
-  let as_bar = map (\a -> op rs_bar (op_inv rs_lft a)) as
-  in (cbwd rs_lft , as_bar)
+  -- Reverse trace
+  let f = (\a -> let p' = op_inv rs_lft a
+                 in vjp (\x -> op x p') a rs_bar)
+  let as_bar = map f as
+
+  in (cbwd rs_lft, as_bar)
 
 ----------------------------------------------------------------------
 -- | Task 3:
@@ -85,6 +89,7 @@ def vjp2_red_inv 't 't_lft [n]
 --       more importantly,
 --       "Differentiating Red-by-Index with Invertible Operator"
 --
+
 def vjp_redbyind_inv 't 't_lft [m] [n]
                (op : t -> t -> t)
                (op_lft : t_lft -> t_lft -> t_lft)
@@ -95,6 +100,20 @@ def vjp_redbyind_inv 't 't_lft [m] [n]
             -- \^ function params
                (dst: [m]t) (ks: [n]i64) (vs: [n]t) (rs_bar: [m]t)
              : ([m]t, [m]t, [n]t) =
-  --
-  -- please replace the dummy code below with your correct implementation
-  (dst, rs_bar, vs)
+  -- Primal
+  let rs_lft = reduce_by_index (map cfwd dst) op_lft ne ks (map cfwd vs)
+
+  -- Reverse trace
+  let dst_bar =
+    map3 (\rs d r_bar ->
+            let p' = op_inv rs d
+            in vjp (\x -> op x p') d r_bar)
+         rs_lft dst rs_bar
+
+  let vs_bar =
+    map2 (\v k ->
+            let p' = op_inv rs_lft[k] v
+            in vjp (\x -> op x p') v rs_bar[k])
+         vs ks
+
+  in (map cbwd rs_lft, dst_bar, vs_bar)

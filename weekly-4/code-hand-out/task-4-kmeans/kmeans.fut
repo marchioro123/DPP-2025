@@ -15,7 +15,11 @@ def euclid_dist_2 [d] (pt1: [d]f32) (pt2: [d]f32): f32 =
 -- of lecture `L7and8-AD.pdf`
 ----------------------------------------------------------------
 def cost [n][k][d] (points: [n][d]f32) (centres: [k][d]f32) : f32 =
-  1.0f32
+  let min_dists = 
+    map (\p -> let center_dists = map (\c -> euclid_dist_2 p c) centres
+               in reduce f32.min f32.highest center_dists) points
+
+  in f32.sum min_dists
 
 def tolerance = 1 : f32
 
@@ -49,9 +53,9 @@ entry main [n][d]
       --    (b) the current cluster centers
       --    (c) a `k x d` matrix of ones (see slides)
       -------------------------------------------------------
-      let (cost', cost'') = ( replicate k (replicate d 1f32)
-                            , replicate k (replicate d 1f32))
-      
+
+      let f = (\cs -> vjp (cost points) cs 1f32)
+      let (cost', cost'') = jvp2 f cluster_centres (replicate k (replicate d 1f32))
       
       --------------------------------------------------------
       -- Task 4 (c):
@@ -72,7 +76,9 @@ entry main [n][d]
       --    new_centers_{i,j} = cluster_centers_{i,j} - 
       --                        cost'_{i,j} / cost''_{i,j}
       --------------------------------------------------------
-      let new_centres = cluster_centres
+      let new_centres =
+        map3 (\cs js hs -> map3 (\c j h -> c - j / h) cs js hs) 
+             cluster_centres cost' cost''
       
       -- That's it, do not touch the code below
       -- update stopping condition
@@ -81,3 +87,8 @@ entry main [n][d]
         < tolerance
       in (new_centres, i+1, stop)
   in cluster_centres
+
+-- kMeans test
+-- ==
+-- compiled input @ data/kdd_cup.in.gz
+-- output @ data/kdd_cup.out
