@@ -1,6 +1,5 @@
 -- Computation based on reduce min: performance
 -- ==
-
 -- entry: mapomin_primal mapomin_vjp2 mapomin_manual 
 -- compiled random input { [10000000]f32 f32 }
 -- compiled random input {[100000000]f32 f32 }

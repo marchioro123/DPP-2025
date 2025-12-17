@@ -88,7 +88,3 @@ entry main [n][d]
       in (new_centres, i+1, stop)
   in cluster_centres
 
--- kMeans test
--- ==
--- compiled input @ data/kdd_cup.in.gz
--- output @ data/kdd_cup.out

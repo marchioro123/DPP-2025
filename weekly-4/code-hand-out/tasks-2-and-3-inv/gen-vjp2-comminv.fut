@@ -88,7 +88,7 @@ def vjp2_red_inv 't 't_lft [n]
 --       "Differentiating General-Case Reduce-By-Index", and,
 --       more importantly,
 --       "Differentiating Red-by-Index with Invertible Operator"
---
+-- 
 
 def vjp_redbyind_inv 't 't_lft [m] [n]
                (op : t -> t -> t)
@@ -100,7 +100,7 @@ def vjp_redbyind_inv 't 't_lft [m] [n]
             -- \^ function params
                (dst: [m]t) (ks: [n]i64) (vs: [n]t) (rs_bar: [m]t)
              : ([m]t, [m]t, [n]t) =
-  -- Primal
+  -- Primal trace
   let rs_lft = reduce_by_index (map cfwd dst) op_lft ne ks (map cfwd vs)
 
   -- Reverse trace
