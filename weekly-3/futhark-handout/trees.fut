@@ -72,13 +72,17 @@ module input
 -- ## Task 2.1
 
 def depths (steps: []step) : [](i64, i32) =
+ let n = length steps
  let traversal = map (\s -> match s 
-                            case #u -> -1 
+                            case #u -> -1
                             case _ -> 1) steps
- let depths = scan (+) (-1) traversal
+
+ let incScan = scan (+) 0 traversal
+ let excScan = ([0] ++ incScan[:n-1]) :> [n]i64
+
  let filtered = filter (\(_, s) -> match s 
                                    case #u -> false 
-                                   case _ -> true) (zip depths steps)
+                                   case _ -> true) (zip excScan (steps :> [n]step))
 
  in map (\(d, s) -> match s 
                     case #u -> (d, 0) -- "impossible" branch, but required
@@ -89,6 +93,7 @@ entry test_depths steps =
   let (D, _) = depths (input.steps steps) |> unzip
   in D
 
+
 -- ==
 -- entry: test_depths
 -- nobench input { "d0 d2 d3 u u d5 u" }
@@ -97,7 +102,6 @@ entry test_depths steps =
 -- output { [0i64,1i64,1i64,1i64,2i64,2i64,1i64,2i64] }
 -- nobench input { "d1 d2 d3 d4 d5 u u u" }
 -- output { [0i64,1i64,2i64,3i64,4i64] }
-
 
 -- ## Task 2.2
 
